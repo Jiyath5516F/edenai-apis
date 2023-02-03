@@ -1,151 +1,153 @@
 {
-  "original_response": {
-    "uids": [],
-    "label": null,
-    "confirmed": false,
-    "manual": false,
-    "width": 44.44,
-    "height": 68.44,
-    "yaw": -20,
-    "roll": 4,
-    "pitch": 7,
-    "attributes": {
-      "face": {
-        "value": "true",
-        "confidence": 89
-      },
-      "gender": {
-        "value": "male",
-        "confidence": 40
-      },
-      "glasses": {
-        "value": "true",
-        "confidence": 60
-      },
-      "dark_glasses": {
-        "value": "true",
-        "confidence": 34
-      },
-      "smiling": {
-        "value": "false",
-        "confidence": 46
-      },
-      "age_est": {
-        "value": "44",
-        "confidence": 50
-      },
-      "mood": {
-        "value": "sad",
-        "confidence": 58
-      },
-      "lips": {
-        "value": "sealed",
-        "confidence": 54
-      },
-      "eyes": {
-        "value": "open",
-        "confidence": 25
-      },
-      "neutral_mood": {
-        "value": "false",
-        "confidence": 0
-      },
-      "anger": {
-        "value": "false",
-        "confidence": 42
-      },
-      "disgust": {
-        "value": "false",
-        "confidence": 0
-      },
-      "fear": {
-        "value": "false",
-        "confidence": 0
-      },
-      "happiness": {
-        "value": "false",
-        "confidence": 0
-      },
-      "sadness": {
-        "value": "true",
-        "confidence": 58
-      },
-      "surprise": {
-        "value": "false",
-        "confidence": 0
-      },
-      "ethnicity": {
-        "white": {
-          "value": "false",
-          "confidence": 24
-        },
-        "black": {
-          "value": "false",
-          "confidence": 4
-        },
-        "asian": {
-          "value": "false",
-          "confidence": 3
-        },
-        "indian": {
+  "original_response": [
+    {
+      "uids": [],
+      "label": null,
+      "confirmed": false,
+      "manual": false,
+      "width": 44.44,
+      "height": 68.44,
+      "yaw": -20,
+      "roll": 4,
+      "pitch": 7,
+      "attributes": {
+        "face": {
           "value": "true",
-          "confidence": 66
+          "confidence": 89
         },
-        "hispanic": {
+        "gender": {
+          "value": "male",
+          "confidence": 40
+        },
+        "glasses": {
+          "value": "true",
+          "confidence": 60
+        },
+        "dark_glasses": {
+          "value": "true",
+          "confidence": 34
+        },
+        "smiling": {
           "value": "false",
-          "confidence": 3
+          "confidence": 46
+        },
+        "age_est": {
+          "value": "44",
+          "confidence": 50
+        },
+        "mood": {
+          "value": "sad",
+          "confidence": 58
+        },
+        "lips": {
+          "value": "sealed",
+          "confidence": 54
+        },
+        "eyes": {
+          "value": "open",
+          "confidence": 25
+        },
+        "neutral_mood": {
+          "value": "false",
+          "confidence": 0
+        },
+        "anger": {
+          "value": "false",
+          "confidence": 42
+        },
+        "disgust": {
+          "value": "false",
+          "confidence": 0
+        },
+        "fear": {
+          "value": "false",
+          "confidence": 0
+        },
+        "happiness": {
+          "value": "false",
+          "confidence": 0
+        },
+        "sadness": {
+          "value": "true",
+          "confidence": 58
+        },
+        "surprise": {
+          "value": "false",
+          "confidence": 0
+        },
+        "ethnicity": {
+          "white": {
+            "value": "false",
+            "confidence": 24
+          },
+          "black": {
+            "value": "false",
+            "confidence": 4
+          },
+          "asian": {
+            "value": "false",
+            "confidence": 3
+          },
+          "indian": {
+            "value": "true",
+            "confidence": 66
+          },
+          "hispanic": {
+            "value": "false",
+            "confidence": 3
+          }
+        },
+        "beard": {
+          "value": "true",
+          "confidence": 57
+        },
+        "mustache": {
+          "value": "true",
+          "confidence": 16
+        },
+        "hat": {
+          "value": "false",
+          "confidence": 12
+        },
+        "liveness": {
+          "value": "true",
+          "confidence": 77
         }
       },
-      "beard": {
-        "value": "true",
-        "confidence": 57
+      "points": null,
+      "similarities": null,
+      "tid": "TEMP_F@0e19027a075a58562d5551350086006b_ac38391966f34_59.56_47.56_0_1",
+      "recognizable": true,
+      "center": {
+        "x": 59.56,
+        "y": 47.56
       },
-      "mustache": {
-        "value": "true",
-        "confidence": 16
+      "eye_left": {
+        "x": 74.67,
+        "y": 37.33,
+        "confidence": 100,
+        "id": 449
       },
-      "hat": {
-        "value": "false",
-        "confidence": 12
+      "eye_right": {
+        "x": 55.56,
+        "y": 35.11,
+        "confidence": 97,
+        "id": 450
       },
-      "liveness": {
-        "value": "true",
-        "confidence": 77
+      "mouth_center": {
+        "x": 64.44,
+        "y": 60.44,
+        "confidence": 94,
+        "id": 615
+      },
+      "nose": {
+        "x": 68.0,
+        "y": 47.56,
+        "confidence": 98,
+        "id": 403
       }
-    },
-    "points": null,
-    "similarities": null,
-    "tid": "TEMP_F@0e19027a075a58562d5551350086006b_ac38391966f34_59.56_47.56_0_1",
-    "recognizable": true,
-    "center": {
-      "x": 59.56,
-      "y": 47.56
-    },
-    "eye_left": {
-      "x": 74.67,
-      "y": 37.33,
-      "confidence": 100,
-      "id": 449
-    },
-    "eye_right": {
-      "x": 55.56,
-      "y": 35.11,
-      "confidence": 97,
-      "id": 450
-    },
-    "mouth_center": {
-      "x": 64.44,
-      "y": 60.44,
-      "confidence": 94,
-      "id": 615
-    },
-    "nose": {
-      "x": 68.0,
-      "y": 47.56,
-      "confidence": 98,
-      "id": 403
     }
-  },
+  ],
   "standardized_response": {
     "items": [
       {
@@ -237,10 +239,10 @@
         "age": 44.0,
         "gender": "male",
         "bounding_box": {
-          "x_min": null,
-          "x_max": null,
-          "y_min": null,
-          "y_max": null
+          "x_min": 37.34,
+          "x_max": 81.78,
+          "y_min": 13.340000000000003,
+          "y_max": 81.78
         },
         "hair": {
           "hair_color": [],
