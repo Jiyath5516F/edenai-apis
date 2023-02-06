@@ -95,6 +95,6 @@ class InfosIdentityParserDataClass(BaseModel):
             raise ValueError("Incorrect data format, should be YYYY-MM-DD")
         return value
 
-    
+
 class IdentityParserDataClass(BaseModel):
     extracted_data: Sequence[InfosIdentityParserDataClass] = Field(default_factory=list)

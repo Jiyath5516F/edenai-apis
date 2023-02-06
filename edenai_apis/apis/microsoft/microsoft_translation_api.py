@@ -5,6 +5,8 @@ import uuid
 
 import requests
 from azure.storage.blob import BlobServiceClient
+from azure.core.credentials import AzureKeyCredential
+from azure.ai.translation.document import DocumentTranslationClient
 
 from edenai_apis.features.translation import (
     AutomaticTranslationDataClass,
@@ -104,50 +106,35 @@ class MicrosoftTranslationApi(TranslationInterface):
         blob_client = blob_service_client.get_blob_client(container='source', blob=local_file_name)
         blob_client.upload_blob(file)
 
-        sourceSASUrl = self.api_settings['translator']['source_storage']
-        targetSASUrl = self.api_settings['translator']['target_storage']
+        sourceSASUrl = "https://customdocument.blob.core.windows.net/source"
+        targetSASUrl = "https://customdocument.blob.core.windows.net/target"
 
-        body = {
-            "inputs": [
-                {
-                    "source": {
-                        "sourceUrl": sourceSASUrl,
-                        "storageSource": "AzureBlob",
-                        "language": source_language
-                    },
-                    "targets": [
-                        {
-                            "targetUrl": targetSASUrl,
-                            "storageSource": "AzureBlob",
-                            "language": target_language
-                        }
-                    ]
-                }
-            ]
-        }
+        client = DocumentTranslationClient(
+            'https://aicompare-translate.cognitiveservices.azure.com/',
+            AzureKeyCredential(self.api_settings["translator"]['subscription_key'])
+        )
 
-        headers = {
-          'Ocp-Apim-Subscription-Key': self.api_settings["translator"]['subscription_key'],
-          'Content-Type': 'application/json',
-        }
+        poller = client.begin_translation(sourceSASUrl, targetSASUrl, "fr")
+        result = poller.result()
 
-        response = requests.post('https://aicompare-translate.cognitiveservices.azure.com/translator/text/batch/v1.0/batches', headers=headers, json=body)
+        print("Status: {}".format(poller.status()))
+        print("Created on: {}".format(poller.details.created_on))
+        print("Last updated on: {}".format(poller.details.last_updated_on))
+        print("Total number of translations on documents: {}".format(poller.details.documents_total_count))
 
-        if response.status_code != 202:
-            raise ProviderException(message=response.reason, code=response.status_code)
+        print("\nOf total documents...")
+        print("{} failed".format(poller.details.documents_failed_count))
+        print("{} succeeded".format(poller.details.documents_succeeded_count))
 
-        print(f"Response status code: {response.status_code} with reason: {response.reason}")
-        print(f"Job ID: {response.headers['Operation-Location'].split('/')[-1]}")
-
-        # i = 0
-        # while i < 60:
-        #     sleep(1)
-        #     i += 1
-        #     print("\rpending ...\testimated time: %d seconds" % (60 - i), end="")
-
-        # blob_list = target_container_client.list_blobs()
-        # for blob in blob_list:
-        #     print("\t" + blob.name)
+        for document in result:
+            print("Document ID: {}".format(document.id))
+            print("Document status: {}".format(document.status))
+            if document.status == "Succeeded":
+                print("Source document location: {}".format(document.source_document_url))
+                print("Translated document location: {}".format(document.translated_document_url))
+                print("Translated to language: {}\n".format(document.translated_to))
+            else:
+                print("Error Code: {}, Message: {}\n".format(document.error.code, document.error.message))
 
         containers = blob_service_client.list_containers()
         for container in containers:
