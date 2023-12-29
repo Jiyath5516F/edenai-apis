@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, Union
 
 from edenai_apis.loaders.data_loader import ProviderDataEnum
 from edenai_apis.loaders.loaders import load_provider
@@ -13,7 +13,10 @@ from edenai_apis.utils.languages import (
 from edenai_apis.utils.resolutions import provider_appropriate_resolution
 
 
-def validate_input_file_extension(constraints: dict, args: dict) -> dict:
+def validate_input_file_extension(
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     """Check that a provider offers support for the input file extension for speech to text
 
     Args:
@@ -42,7 +45,10 @@ def validate_input_file_extension(constraints: dict, args: dict) -> dict:
     return args
 
 
-def validate_resolution(constraints: dict, args: dict) -> dict:
+def validate_resolution(
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     supported_resolutions: List[str] = constraints.get("resolutions", [])
 
     if not args.get("resolution") or not supported_resolutions:
@@ -50,7 +56,7 @@ def validate_resolution(constraints: dict, args: dict) -> dict:
     try:
         resolution = provider_appropriate_resolution(args["resolution"])
     except SyntaxError as exc:
-        raise ProviderException(exc)
+        raise ProviderException(str(exc)) from exc
 
     data = resolution.split("x")
     if len(data) != 2:
@@ -58,14 +64,18 @@ def validate_resolution(constraints: dict, args: dict) -> dict:
 
     if resolution not in supported_resolutions:
         raise ProviderException(
-            f"Resolution not supported by the provider. Use one of the following resolutions: {','.join(supported_resolutions)}"
+            "Resolution not supported by the provider. Use one of the following resolutions: "
+            + ",".join(supported_resolutions)
         )
 
     args["resolution"] = resolution
     return args
 
 
-def validate_input_file_type(constraints: dict, provider: str, args: dict) -> dict:
+def validate_input_file_type(
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     """Check that a provider offers support for the input file type
 
     Args:
@@ -81,7 +91,7 @@ def validate_input_file_type(constraints: dict, provider: str, args: dict) -> di
     """
     provider_file_type_constraints: List[str] = constraints.get("file_types", [])
 
-    input_file: FileWrapper = args.get("file")
+    input_file = args.get("file")
 
     if input_file and len(provider_file_type_constraints) > 0:
         input_file_type = input_file.file_info.file_media_type
@@ -104,7 +114,7 @@ def validate_input_file_type(constraints: dict, provider: str, args: dict) -> di
         ):
             supported_types = ",\n".join(provider_file_type_constraints)
             raise ProviderException(
-                f"Provider {provider} doesn't support file type: {input_file_type} "
+                f"Provider doesn't support file type: {input_file_type} "
                 f"for this feature.\n"
                 f"Supported mimetypes are {supported_types}"
             )
@@ -113,9 +123,9 @@ def validate_input_file_type(constraints: dict, provider: str, args: dict) -> di
 
 def validate_single_language(
     provider_name: str,
-    feature,
-    subfeature,
-    language: dict,
+    feature: str,
+    subfeature: str,
+    language: Dict[str, Union[str, None]],
     null_language_accepted: bool,
 ) -> Optional[str]:
     """
@@ -148,7 +158,7 @@ def validate_single_language(
             )
 
     try:
-        formated_language = provide_appropriate_language(
+        formatted_language = provide_appropriate_language(
             language["value"],
             provider_name=provider_name,
             feature=feature,
@@ -157,33 +167,36 @@ def validate_single_language(
     except SyntaxError as exc:
         raise ProviderException(
             LanguageErrorMessage.LANGUAGE_SYNTAX_ERROR(language["value"])
+        ) from exc
+
+    if not null_language_accepted and formatted_language is None:
+        if "-" in language["value"]:
+            supported_languages = load_standardized_language(
+                feature, subfeature, [provider_name]
+            )
+            suggested_language = language["value"].split("-")[0]
+            if suggested_language in supported_languages:
+                raise ProviderException(
+                    LanguageErrorMessage.LANGUAGE_GENERIQUE_REQUESTED(
+                        language["value"], suggested_language, language["key"]
+                    )
+                )
+        raise ProviderException(
+            LanguageErrorMessage.LANGUAGE_NOT_SUPPORTED(
+                language["value"], language["key"]
+            )
         )
 
-    if null_language_accepted is False:
-        if formated_language is None:
-            if "-" in language["value"]:
-                supported_languages = load_standardized_language(
-                    feature, subfeature, [provider_name]
-                )
-                suggested_language = language["value"].split("-")[0]
-                if suggested_language in supported_languages:
-                    raise ProviderException(
-                        LanguageErrorMessage.LANGUAGE_GENERIQUE_REQUESTED(
-                            language["value"], suggested_language, language["key"]
-                        )
-                    )
-            raise ProviderException(
-                LanguageErrorMessage.LANGUAGE_NOT_SUPPORTED(
-                    language["value"], language["key"]
-                )
-            )
-
-    return formated_language
+    return formatted_language
 
 
 def validate_all_input_languages(
-    constraints: dict, args: dict, provider_name: str, feature: str, subfeature: str
-) -> Dict:
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+    provider_name: str,
+    feature: str,
+    subfeature: str,
+) -> Dict[str, Any]:
     """
     Updates the args input to provide the appropriate language
     supported by the provider from user input language,
@@ -200,7 +213,7 @@ def validate_all_input_languages(
         - dict: updated args
     """
 
-    # Skip language checking for text_to_speech if settings are passed, execpt for google
+    # Skip language checking for text_to_speech if settings are passed, except for Google
     if (
         subfeature == "text_to_speech"
         and provider_name in (args.get("settings", {}) or {})
@@ -224,7 +237,10 @@ def validate_all_input_languages(
     return args
 
 
-def validate_audio_format(constraints: dict, args: dict) -> dict:
+def validate_audio_format(
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     provider_audio_format_constraints: List[str] = (
         constraints.get("audio_format", []) or []
     )
@@ -239,7 +255,12 @@ def validate_audio_format(constraints: dict, args: dict) -> dict:
     return args
 
 
-def validate_models(provider: str, subfeature: str, constraints: dict, args: dict) -> Dict:
+def validate_models(
+    provider: str,
+    subfeature: str,
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     models = constraints.get("models") or constraints.get("voice_ids")
     if not models:
         if "settings" in args:
@@ -260,17 +281,23 @@ def validate_models(provider: str, subfeature: str, constraints: dict, args: dic
             if constraints and settings[provider] in models:
                 selected_model = settings[provider]
             else:
-                all_availaible_models = ", ".join(models)
+                all_available_models = ", ".join(models)
                 raise ProviderException(
-                    f"Wrong model name, availaible models for {provider} are : {all_availaible_models}"
+                    f"Wrong model name, available models for {provider} are :"
+                    + all_available_models
                 )
         else:
             selected_model = constraints.get("default_model")
         args["model"] = selected_model
-    args.pop("settings", None) 
+    args.pop("settings", None)
     return args
 
-def validate_document_type(subfeature: str, constraints: dict, args: dict) -> Dict:
+
+def validate_document_type(
+    subfeature: str,
+    constraints: Dict[str, Any],
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     """
     Validate document type based on specified constraints.
 
@@ -290,15 +317,22 @@ def validate_document_type(subfeature: str, constraints: dict, args: dict) -> Di
             return args
 
         # Handle the case where null document type is allowed
-        if constraints.get("allow_null_document_type") and args.get("document_type") == "auto-detect":
+        if (
+            constraints.get("allow_null_document_type")
+            and args.get("document_type") == "auto-detect"
+        ):
             args["document_type"] = ""
             return args
-        
 
         # Check if the document type is allowed or raise an exception
-        if not constraints.get("allow_null_document_type") and args["document_type"] == "auto-detect":
-            raise ProviderException("The provider does not accept auto-detect for this feature.")
-        
+        if (
+            not constraints.get("allow_null_document_type")
+            and args["document_type"] == "auto-detect"
+        ):
+            raise ProviderException(
+                "The provider does not accept auto-detect for this feature."
+            )
+
         # Return the validated arguments
         return args
     else:
@@ -306,7 +340,7 @@ def validate_document_type(subfeature: str, constraints: dict, args: dict) -> Di
         return args
 
 
-def transform_file_args(args: dict) -> dict:
+def transform_file_args(args: Dict[str, Any]) -> Dict[str, Any]:
     """transform the file wrapper to file path and file url for subfeature functions
 
     Args:
@@ -327,8 +361,12 @@ def transform_file_args(args: dict) -> dict:
 
 
 def validate_all_provider_constraints(
-    provider: str, feature: str, subfeature: str, phase: str, args: dict
-) -> dict:
+    provider: str,
+    feature: str,
+    subfeature: str,
+    phase: str,
+    args: Dict[str, Any],
+) -> Dict[str, Any]:
     """
     Validate inputs arguments against provider constraints
 
@@ -336,7 +374,7 @@ def validate_all_provider_constraints(
         - provider (str): provider name
         - feature (str): feature name
         - subfeature (str): subfeature name
-        - args (dict): dictionnary of input arguments
+        - args (dict): dictionary of input arguments
 
     Returns:
         - args: updated/validated args
@@ -354,12 +392,8 @@ def validate_all_provider_constraints(
 
     if provider_constraints is not None:
         validated_args = args.copy()
-        ## Validate here
-
         # file types
-        validated_args = validate_input_file_type(
-            provider_constraints, provider, validated_args
-        )
+        validated_args = validate_input_file_type(provider_constraints, validated_args)
 
         # languages
         validated_args = validate_all_input_languages(
@@ -377,12 +411,14 @@ def validate_all_provider_constraints(
         validated_args = validate_audio_format(provider_constraints, validated_args)
 
         #  Validate models
-        validated_args = validate_models(provider, subfeature, provider_constraints, validated_args)
+        validated_args = validate_models(
+            provider, subfeature, provider_constraints, validated_args
+        )
 
         # Validate document_type
-        validated_args = validate_document_type(subfeature, provider_constraints, validated_args)
-        
-        # ...
+        validated_args = validate_document_type(
+            subfeature, provider_constraints, validated_args
+        )
 
         validated_args = transform_file_args(validated_args)
 

@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Callable, Dict, List, Sequence
+from typing import Callable, Dict, List, Sequence, Any
 
 from pydantic import BaseModel, Field, field_validator
 from typing_extensions import overload
@@ -57,12 +57,11 @@ class BoundingBox(BaseModel):
         top (float): Top coordinate of the bounding box
         width (float): Width of the bounding box
         height (float): Height of the bounding box
-        text (str): Text detected in the bounding box
 
     Constructor:
-        from_json (classmethod): Create a new instance of BoundingBox from a JSON object
-        from_normalized_vertices (classmethod): Create a new instance of BoundingBox from normalized vertices
-        unknown (classmethod): Return a invalid bouding_box with all field filled with `-1`
+        from_json: Create a new instance of BoundingBox from a JSON object
+        from_normalized_vertices: Create a new instance of BoundingBox from normalized vertices
+        unknown: Return an invalid bounding_box with all field filled with `-1`
     """
 
     left: float = Field(description="Left coordinate of the bounding box")
@@ -70,8 +69,9 @@ class BoundingBox(BaseModel):
     width: float = Field(description="Width of the bounding box")
     height: float = Field(description="Height of the bounding box")
 
+    @classmethod
     @field_validator("left", "top", "width", "height", mode="before")
-    def convert_to_float(cls, value):
+    def convert_to_float(cls, value: Any) -> float:
         """Convert the value to float
 
         Args:
@@ -92,8 +92,8 @@ class BoundingBox(BaseModel):
     @classmethod
     def from_json(
         cls,
-        bounding_box: dict,
-        modifiers: Callable = lambda x: x,
+        bounding_box: Dict[str, Any],
+        modifiers: Callable[[Any], str] = lambda x: x,
         keys: Sequence[str] = ["left", "top", "width", "height"],
     ) -> "BoundingBox":
         """Create a new instance of BoundingBox from a JSON object
@@ -157,7 +157,7 @@ class BoundingBox(BaseModel):
         Dependencies:
             BoundingBox.from_json
         """
-        if corner_position_keys == []:
+        if not corner_position_keys:
             if isinstance(normalized_vertices, dict):
                 corner_position_keys = [
                     "topLeft",
@@ -169,8 +169,6 @@ class BoundingBox(BaseModel):
                 corner_position_keys = [0, 1, 2, 3]
             else:
                 raise ValueError("normalized_vertices must be a dict or string")
-
-        boxes = {}
 
         x_key = coordinate_keys[CoordinateEnum.X.value]
         y_key = coordinate_keys[CoordinateEnum.Y.value]

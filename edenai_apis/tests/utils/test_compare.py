@@ -3,7 +3,7 @@
 """
 import pytest
 
-from edenai_apis.utils.compare import compare, assert_standarization
+from edenai_apis.utils.compare import compare, assert_standardization
 
 a = {"a": [1, 2, 3], "b": {"e": "one", "f": "two"}, "c": 3}
 
@@ -55,9 +55,9 @@ def test_compare_standarization(first, second, expected_assertion_exception):
     """Test function assert_standarization"""
     if expected_assertion_exception:
         with pytest.raises(AssertionError) as assertion_exception:
-            assert_standarization(first, second)
+            assert_standardization(first, second)
         # these asserts are identical; you can use either one
         assert str(assertion_exception.value) == expected_assertion_exception
 
     else:
-        assert_standarization(first, second)
+        assert_standardization(first, second)
