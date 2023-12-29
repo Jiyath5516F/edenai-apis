@@ -11,12 +11,14 @@ def is_ssml(ssml_text: str) -> bool:
     Returns:
         bool: True if ssml_text, False otherwise
     """
-    regex: str = r'^<\s*speak\b[^>]*>(?:(?!(<\/\s*speak\s*>|<speak\s*>))[\s\S])*<\/\s*speak\s*>$'
-    match: Optional[re.Match] = re.match(regex, ssml_text, re.MULTILINE)
+    regex: str = (
+        r"^<\s*speak\b[^>]*>(?:(?!(<\/\s*speak\s*>|<speak\s*>))[\s\S])*<\/\s*speak\s*>$"
+    )
+    match: Optional[re.Match[str]] = re.match(regex, ssml_text, re.MULTILINE)
     return match is not None
 
 
-def get_index_after_first_speak_tag(ssml_text) -> int:
+def get_index_after_first_speak_tag(ssml_text: str) -> int:
     """Get the index after the first <speak> tag.
 
     Args:
@@ -36,7 +38,7 @@ def get_index_after_first_speak_tag(ssml_text) -> int:
     return -1
 
 
-def get_index_before_last_speak_tag(ssml_text) -> int:
+def get_index_before_last_speak_tag(ssml_text: str) -> int:
     """Get the index before the last </speak> tag.
     Args:
         ssml_text (str): text to check
@@ -64,7 +66,7 @@ def convert_audio_attr_in_prosody_tag(
     Args:
         cleaned_attribs (str): The format string of audio attribute
         text (str): The input text for tts
-        voice_id (Optional[str]): The voice id for tts. Defaults to "".
+        voice_tag (Optional[str]): The voice id for tts. Defaults to "".
         speak_attr (Optional[str]): The speak attribute for tts. Defaults to None. Ignore if text already have <speak> tag.
     """
     idx_after_first_tag = get_index_after_first_speak_tag(text)
@@ -76,15 +78,15 @@ def convert_audio_attr_in_prosody_tag(
             + f"{voice_tag}"
             + (f"<prosody {cleaned_attribs}>" if cleaned_attribs else "")
             + text
-            + (f"</prosody>" if cleaned_attribs else "")
-            + f"{f'</voice>' if voice_tag else ''}</speak>"
+            + ("</prosody>" if cleaned_attribs else "")
+            + f"{'</voice>' if voice_tag else ''}</speak>"
         )
     return (
         text[0:idx_after_first_tag]
         + f"{voice_tag}"
         + (f"<prosody {cleaned_attribs}>" if cleaned_attribs else "")
         + text[idx_after_first_tag:idx_before_last_tag]
-        + (f"</prosody>" if cleaned_attribs else "")
-        + f"{f'</voice>' if voice_tag else ''}"
+        + ("</prosody>" if cleaned_attribs else "")
+        + f"{'</voice>' if voice_tag else ''}"
         + text[idx_before_last_tag:]
     )
